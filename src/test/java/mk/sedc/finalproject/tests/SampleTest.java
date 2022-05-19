@@ -1,82 +1,118 @@
 package mk.sedc.finalproject.tests;
 
-import com.github.javafaker.Faker;
+import com.github.javafaker.PhoneNumber;
+import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.HashMap;
 
 public class SampleTest extends BaseTest{
 
-    @Test
-    public void testSignIn(){
-        String password = "proba1";
+    @Test(groups = "register")
+    public void testCreateAnAccount(){
         String firstName = faker.name().firstName();
         String lastName = faker.name().lastName();
-        homePage.click_signIn();
-        sleep(2000);
-        homePage.enterEmail(homePage.randomEmail());
-        sleep(2000);
-        homePage.click_createAccount();
-        sleep(2000);
+
+        PhoneNumber phoneNumber = faker.phoneNumber();
+        homePage.clickSignIn();
+        homePage.enterEmail(email);
+        homePage.clickCreateAccount();
+        homePage.clickTitle();
         homePage.enterFirstName(firstName);
-        sleep(1000);
         homePage.enterLastName(lastName);
         scroll(0,400);
-        sleep(2000);
         homePage.enterPassword(password);
-        sleep(2000);
+        homePage.enterAddress(fullAddress);
+        homePage.enterCity(city);
+        homePage.stateSelection(state);
+        homePage.enterZipCode(zip);
+        homePage.enterPhoneNumber(phoneNumber.cellPhone());
+        homePage.enterAliasAddress(address.secondaryAddress());
+        homePage.stateSelection(state);
+        homePage.clickRegister();
+        String actualInfoAccount = homePage.getInfoAccount();
+        Assert.assertEquals(actualInfoAccount, "Welcome to your account. Here you can manage all of your personal information and orders.", "User has not created an account");
     }
 
-    @Test
+    @Test(dependsOnGroups = "register")
     public void testAddToCart(){
+        homePage.login(email, password);
+
         int qty = 2;
         String size = "M";
 
         cartPage.click_dresses();
-        sleep(2000);
         scroll(0,400);
         cartPage.click_summerDresses();
-        sleep(2000);
         scroll(0,400);
         String productName = cartPage.click_product();
-        System.out.println(productName);
-        sleep(2000);
         cartPage.enterQty(qty);
-        sleep(2000);
         cartPage.sizeSelection(size);
-        sleep(2000);
         scroll(0,400);
         String color = cartPage.click_color();
-        sleep(2000);
         cartPage.click_addToCart();
-        //sleep(15000);
-        cartPage.validate(productName,color,size,qty);
+        String markedProductName = cartPage.getProductName();
+        Assert.assertEquals(markedProductName, productName, "Product name is not as expected");
+        String[] productAttributes = cartPage.getProductAtrributes();
+        Assert.assertEquals(productAttributes[0].trim(), color);
+        Assert.assertEquals(productAttributes[1].trim(), size);
+        int productQty = cartPage.getProductQty();
+        Assert.assertEquals(productQty, qty, "Incorrect quantity");
+        double productPrice = cartPage.getProductPrice();
+        double totalPrice = cartPage.getTotalPrice();
+        double expectedTotalPrice = productPrice * productQty;
+        Assert.assertEquals(totalPrice, expectedTotalPrice, "Incorrect total price");
         cartPage.click_proceedToCheckout();
-        sleep(4000);
         scroll(0,400);
     }
 
-    @Test(groups="ignore")
-    public void test2(){
-        Faker faker = new Faker();
-        HashMap<String, String> user = new HashMap<String, String>();
-        user.put("username", "hristina");
-        user.put("password", "P@$$w)rd");
-        user.put("email", "christinezahar+1@yahoo.com");
+    @Test (dependsOnGroups = "register")
+    public void testRemoveFromCart(){
+        homePage.login(email, password);
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        LocalDateTime now = LocalDateTime.now();
-        System.out.println(dtf.format(now));
-        user.put("email", "christinezahar+" + dtf.format(now) + "@gmail.com");
-        System.out.println(user.get("email"));
+        int qty = 2;
+        String size = "M";
 
-        /*System.out.println("Firstname: " + user.get("username"));
+        cartPage.click_dresses();
+        scroll(0,400);
+        cartPage.click_summerDresses();
+        scroll(0,400);
+        String productName = cartPage.click_product();
+        cartPage.enterQty(qty);
+        cartPage.sizeSelection(size);
+        scroll(0,400);
+        String color = cartPage.click_color();
+        cartPage.click_addToCart();
+        cartPage.click_proceedToCheckout();
+        scroll(0,400);
+        sleep(2000);
+        cartPage.clickDeleteBtn();
+        String actualDeleteInfo = cartPage.getDeleteInfo();
+        Assert.assertEquals(actualDeleteInfo, "Your shopping cart is empty.");
+    }
 
-        System.out.println();
-        String username = "hristina";
-        String password = "nesto";*/
+    @Test (dependsOnGroups = "register")
+    public void testOrderCheckout(){
+        homePage.login(email, password);
+
+        int qty = 2;
+        String size = "M";
+
+        cartPage.click_dresses();
+        scroll(0,400);
+        cartPage.click_summerDresses();
+        scroll(0,400);
+        String productName = cartPage.click_product();
+        cartPage.enterQty(qty);
+        cartPage.sizeSelection(size);
+        scroll(0,400);
+        String color = cartPage.click_color();
+        cartPage.click_addToCart();
+        cartPage.click_proceedToCheckout();
+        scroll(0,600);
+        cartPage.click_proceedToCheckout();
+        scroll(0, 600);
+        String actualAddress = cartPage.getAddress();
+        Assert.assertEquals(actualAddress, fullAddress);
+        String actualCityStateZip = cartPage.getCityStateZip();
+        Assert.assertEquals(actualCityStateZip, city +", "+state+" "+zip);
     }
 }

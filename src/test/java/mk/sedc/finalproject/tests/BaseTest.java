@@ -1,9 +1,11 @@
 package mk.sedc.finalproject.tests;
 
+import com.github.javafaker.Address;
 import com.github.javafaker.Faker;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import mk.sedc.finalproject.pages.CartPage;
 import mk.sedc.finalproject.pages.HomePage;
+import mk.sedc.finalproject.utils.BaseHelper;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -12,6 +14,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 import java.time.Duration;
@@ -25,6 +28,25 @@ public class BaseTest {
     public HomePage homePage;
     public CartPage cartPage;
     public Faker faker = new Faker();
+    public BaseHelper helper = new BaseHelper();
+    public String email;
+    public String password;
+    public Address address;
+    public String fullAddress;
+    public String city;
+    public String state;
+    public String zip;
+
+    @BeforeClass
+    public void setUserCredentials(){
+         email = helper.randomEmail();
+         password = "proba1";
+         address = faker.address();
+         fullAddress = address.fullAddress();
+         city = address.city();
+         state = address.state();
+         zip = "99950";
+    }
 
     @BeforeMethod
     public void before_method(){
@@ -49,7 +71,6 @@ public class BaseTest {
 
         homePage = new HomePage(driver,wait);
         cartPage = new CartPage(driver, wait);
-
 
         driver.manage().window().maximize();
         driver.navigate().to(URL);

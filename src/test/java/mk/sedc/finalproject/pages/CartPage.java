@@ -1,13 +1,11 @@
 package mk.sedc.finalproject.pages;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
 
 import java.util.List;
 import java.util.Random;
@@ -21,7 +19,7 @@ public class CartPage {
     private By productLink = By.className("product-container");
     private By colorSelect = By.className("color_pick");
     private By checkout = By.xpath("//*[text()[contains(.,'Proceed to checkout')]]");
-
+    private By shoppingCart = By.xpath("//*[@id=\"header\"]/div[3]/div/div/div[3]/div/a");
 
     public CartPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
@@ -35,12 +33,6 @@ public class CartPage {
     public void click_summerDresses() {
         wait.until(ExpectedConditions.visibilityOfElementLocated(summerDresses)).click();
     }
-
-//    public void click_product(){
-//        List<WebElement> elements = driver.findElements(productLink);
-//        int productNumber = random(elements.size());
-//        elements.get(productNumber).click();
-//    }
 
     public String click_product(){
         WebElement product = choseRandomElement(productLink);
@@ -64,12 +56,12 @@ public class CartPage {
         return elements.get(randomIndex);
     }
 
-
     public int random(int number){
         Random ran = new Random();
         int x = ran.nextInt(number);
         return x;
     }
+
     public void enterQty(int qty){
         WebElement quantityInput = wait.until(ExpectedConditions.visibilityOfElementLocated(this.quantity));
         quantityInput.clear();
@@ -85,26 +77,65 @@ public class CartPage {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("add_to_cart"))).click();
     }
 
-    public void validate(String productName, String color, String size, int quantity) {
-      validateProductName(productName);
-      validateAttributes(color, size);
+    public double getProductPrice(){
+        WebElement product_price = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("our_price_display")));
+        String productPrice = product_price.getText();
+        String replaceString=productPrice.replace("$", "");
+        double finalProductPrice = Double.parseDouble(replaceString);
+        return finalProductPrice;
     }
 
-    private void validateProductName(String productName){
+    public String getProductName(){
         WebElement layer_cart_product_title = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@id='layer_cart_product_title']")));
         String layerCartProductTitle = layer_cart_product_title.getText();
-        Assert.assertEquals(layerCartProductTitle, productName);
+        return layerCartProductTitle;
     }
 
-    private void validateAttributes(String color, String size){
+    public String[] getProductAtrributes(){
         WebElement layer_cart_product_attributes = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@id='layer_cart_product_attributes']")));
         String layerCartProductAttributes = layer_cart_product_attributes.getText();
-        String[] attributes  = layerCartProductAttributes.split(",");
-        Assert.assertEquals(attributes[0].trim(), color);
-        Assert.assertEquals(attributes[1].trim(), size);
+        String[] attributes = layerCartProductAttributes.split(",");
+        return attributes;
+    }
+
+    public int getProductQty(){
+        WebElement layer_cart_product_qty = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("layer_cart_product_quantity")));
+        String layerCartProductQty = layer_cart_product_qty.getText();
+        int finalProductQty = Integer.parseInt(layerCartProductQty);
+        return finalProductQty;
+    }
+
+    public double getTotalPrice(){
+        WebElement layer_cart_total_price = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("layer_cart_product_price")));
+        String layerCartTotalPrice = layer_cart_total_price.getText();
+        String replaceString = layerCartTotalPrice.replace("$", "");
+        double finalTotalPrice = Double.parseDouble(replaceString);
+        return finalTotalPrice;
     }
 
     public void click_proceedToCheckout() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(checkout)).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("Proceed to checkout"))).click();
+    }
+
+    public void clickDeleteBtn() {
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.className("cart_quantity_delete"))).click();
+    }
+
+    public String getDeleteInfo(){
+        WebElement deleteInfo = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"center_column\"]/p")));
+        String deleteIteminfo = deleteInfo.getText();
+        return deleteIteminfo;
+    }
+
+    public String getAddress(){
+        WebElement address = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"address_delivery\"]/li[3]")));
+        String addressText = address.getText();
+        return addressText;
+    }
+
+    public String getCityStateZip(){
+        WebElement cityStateZip = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"address_delivery\"]/li[4]")));
+        String cityStateZipcode = cityStateZip.getText();
+        return cityStateZipcode;
     }
 }
