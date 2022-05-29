@@ -3,8 +3,7 @@ package mk.sedc.finalproject.tests;
 import com.github.javafaker.Address;
 import com.github.javafaker.Faker;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import mk.sedc.finalproject.pages.CartPage;
-import mk.sedc.finalproject.pages.HomePage;
+import mk.sedc.finalproject.pages.*;
 import mk.sedc.finalproject.utils.BaseHelper;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -25,8 +24,12 @@ public class BaseTest {
     public String browser = "chrome";
     public static final int TIMEOUT=20;
     public static final String URL="https://automationpractice.com";
-    public HomePage homePage;
-    public CartPage cartPage;
+    protected AccountPage accountPage;
+    protected DressesPage dressesPage;
+    protected DressDetailsPage dressDetailsPage;
+    protected ItemConfirmationPage itemConfirmationPage;
+    protected CartSummaryPage cartSummaryPage;
+    protected HomePage homePage;
     public Faker faker = new Faker();
     public BaseHelper helper = new BaseHelper();
     public String email;
@@ -49,7 +52,7 @@ public class BaseTest {
     }
 
     @BeforeMethod
-    public void before_method(){
+    public void beforeMethod(){
         if(browser.equalsIgnoreCase("chrome")){
             WebDriverManager.chromedriver().setup();
             driver = new ChromeDriver();
@@ -69,15 +72,23 @@ public class BaseTest {
 
         wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT));
 
-        homePage = new HomePage(driver,wait);
-        cartPage = new CartPage(driver, wait);
+        initPageObjects();
 
         driver.manage().window().maximize();
         driver.navigate().to(URL);
     }
 
+    private void initPageObjects() {
+        accountPage = new AccountPage(driver,wait);
+        dressesPage = new DressesPage(driver,wait);
+        dressDetailsPage = new DressDetailsPage(driver,wait);
+        itemConfirmationPage = new ItemConfirmationPage(driver,wait);
+        cartSummaryPage = new CartSummaryPage(driver,wait);
+        homePage = new HomePage(driver,wait);
+    }
+
     @AfterMethod
-    public void after_method(){
+    public void afterMethod(){
         driver.quit();
     }
 

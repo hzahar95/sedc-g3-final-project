@@ -12,107 +12,107 @@ public class SampleTest extends BaseTest{
         String lastName = faker.name().lastName();
 
         PhoneNumber phoneNumber = faker.phoneNumber();
-        homePage.clickSignIn();
-        homePage.enterEmail(email);
-        homePage.clickCreateAccount();
-        homePage.clickTitle();
-        homePage.enterFirstName(firstName);
-        homePage.enterLastName(lastName);
+        accountPage.clickSignIn();
+        accountPage.enterEmail(email);
+        accountPage.clickCreateAccount();
+        accountPage.clickTitle();
+        accountPage.enterFirstName(firstName);
+        accountPage.enterLastName(lastName);
         scroll(0,400);
-        homePage.enterPassword(password);
-        homePage.enterAddress(fullAddress);
-        homePage.enterCity(city);
-        homePage.stateSelection(state);
-        homePage.enterZipCode(zip);
-        homePage.enterPhoneNumber(phoneNumber.cellPhone());
-        homePage.enterAliasAddress(address.secondaryAddress());
-        homePage.stateSelection(state);
-        homePage.clickRegister();
+        accountPage.enterPassword(password);
+        accountPage.enterAddress(fullAddress);
+        accountPage.enterCity(city);
+        accountPage.stateSelection(state);
+        accountPage.enterZipCode(zip);
+        accountPage.enterPhoneNumber(phoneNumber.cellPhone());
+        accountPage.enterAliasAddress(address.secondaryAddress());
+        accountPage.stateSelection(state);
+        accountPage.clickRegister();
         String actualInfoAccount = homePage.getInfoAccount();
         Assert.assertEquals(actualInfoAccount, "Welcome to your account. Here you can manage all of your personal information and orders.", "User has not created an account");
     }
 
     @Test(dependsOnGroups = "register")
     public void testAddToCart(){
-        homePage.login(email, password);
+        accountPage.login(email, password);
 
         int qty = 2;
         String size = "M";
 
-        cartPage.click_dresses();
+        dressesPage.clickDresses();
         scroll(0,400);
-        cartPage.click_summerDresses();
+        dressesPage.clickSummerDresses();
         scroll(0,400);
-        String productName = cartPage.click_product();
-        cartPage.enterQty(qty);
-        cartPage.sizeSelection(size);
+        String productName = dressesPage.clickProduct();
+        dressDetailsPage.enterQty(qty);
+        dressDetailsPage.sizeSelection(size);
         scroll(0,400);
-        String color = cartPage.click_color();
-        cartPage.click_addToCart();
-        String markedProductName = cartPage.getProductName();
+        String color = dressDetailsPage.clickColor();
+        dressDetailsPage.clickAddToCart();
+        String markedProductName = itemConfirmationPage.getProductName();
         Assert.assertEquals(markedProductName, productName, "Product name is not as expected");
-        String[] productAttributes = cartPage.getProductAtrributes();
+        String[] productAttributes = itemConfirmationPage.getProductAtrributes();
         Assert.assertEquals(productAttributes[0].trim(), color);
         Assert.assertEquals(productAttributes[1].trim(), size);
-        int productQty = cartPage.getProductQty();
+        int productQty = itemConfirmationPage.getProductQty();
         Assert.assertEquals(productQty, qty, "Incorrect quantity");
-        double productPrice = cartPage.getProductPrice();
-        double totalPrice = cartPage.getTotalPrice();
+        double productPrice = itemConfirmationPage.getProductPrice();
+        double totalPrice = itemConfirmationPage.getTotalPrice();
         double expectedTotalPrice = productPrice * productQty;
         Assert.assertEquals(totalPrice, expectedTotalPrice, "Incorrect total price");
-        cartPage.click_proceedToCheckout();
+        itemConfirmationPage.clickProceedToCheckout();
         scroll(0,400);
     }
 
     @Test (dependsOnGroups = "register")
     public void testRemoveFromCart(){
-        homePage.login(email, password);
+        accountPage.login(email, password);
 
         int qty = 2;
         String size = "M";
 
-        cartPage.click_dresses();
+        dressesPage.clickDresses();
         scroll(0,400);
-        cartPage.click_summerDresses();
+        dressesPage.clickSummerDresses();
         scroll(0,400);
-        String productName = cartPage.click_product();
-        cartPage.enterQty(qty);
-        cartPage.sizeSelection(size);
+        String productName = dressesPage.clickProduct();
+        dressDetailsPage.enterQty(qty);
+        dressDetailsPage.sizeSelection(size);
         scroll(0,400);
-        String color = cartPage.click_color();
-        cartPage.click_addToCart();
-        cartPage.click_proceedToCheckout();
+        String color = dressDetailsPage.clickColor();
+        dressDetailsPage.clickAddToCart();
+        itemConfirmationPage.clickProceedToCheckout();
         scroll(0,400);
         sleep(2000);
-        cartPage.clickDeleteBtn();
-        String actualDeleteInfo = cartPage.getDeleteInfo();
+        cartSummaryPage.clickDeleteBtn();
+        String actualDeleteInfo = cartSummaryPage.getDeleteInfo();
         Assert.assertEquals(actualDeleteInfo, "Your shopping cart is empty.");
     }
 
     @Test (dependsOnGroups = "register")
     public void testOrderCheckout(){
-        homePage.login(email, password);
+        accountPage.login(email, password);
 
         int qty = 2;
         String size = "M";
 
-        cartPage.click_dresses();
+        dressesPage.clickDresses();
         scroll(0,400);
-        cartPage.click_summerDresses();
+        dressesPage.clickSummerDresses();
         scroll(0,400);
-        String productName = cartPage.click_product();
-        cartPage.enterQty(qty);
-        cartPage.sizeSelection(size);
+        String productName = dressesPage.clickProduct();
+        dressDetailsPage.enterQty(qty);
+        dressDetailsPage.sizeSelection(size);
         scroll(0,400);
-        String color = cartPage.click_color();
-        cartPage.click_addToCart();
-        cartPage.click_proceedToCheckout();
+        String color = dressDetailsPage.clickColor();
+        dressDetailsPage.clickAddToCart();
+        itemConfirmationPage.clickProceedToCheckout();
         scroll(0,600);
-        cartPage.click_proceedToCheckout();
+        itemConfirmationPage.clickProceedToCheckout();
         scroll(0, 600);
-        String actualAddress = cartPage.getAddress();
+        String actualAddress = cartSummaryPage.getAddress();
         Assert.assertEquals(actualAddress, fullAddress);
-        String actualCityStateZip = cartPage.getCityStateZip();
+        String actualCityStateZip = cartSummaryPage.getCityStateZip();
         Assert.assertEquals(actualCityStateZip, city +", "+state+" "+zip);
     }
 }
